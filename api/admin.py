@@ -1,6 +1,5 @@
-from django import forms
 from django.contrib import admin
-from unfold.admin import ModelAdmin, StackedInline, TabularInline
+from unfold.admin import ModelAdmin, TabularInline
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.admin import GroupAdmin as BaseGroupAdmin
 from api.models import *
@@ -8,11 +7,7 @@ from django.contrib.auth.models import Group
 from unfold.forms import AdminPasswordChangeForm, UserChangeForm, UserCreationForm
 from django.utils.translation import gettext_lazy as _
 from unfold.decorators import action, display
-# from django.contrib.auth.admin import UserAdmin
-# Register your models here.
-# admin.site.unregister(User)
 from unfold.contrib.forms.widgets import WysiwygWidget
-# from unfold.contrib.forms.
 
 admin.site.unregister(Group)
 
@@ -43,25 +38,6 @@ class ProblemAdmin(ModelAdmin):
             "widget": WysiwygWidget,
         }
     }
-#     def get_form(self, request, obj=None, **kwargs):
-#         form = super().get_form(request, obj, **kwargs)
-#         form.test_cases_formset = TestCaseFormSet
-#         return form
-
-#     def save_formset(self, request, form, formset, change):
-#         # Ensure the formset for test cases is saved
-#         if formset.is_valid():
-#             form.instance.test_cases = form.cleaned_data['test_cases']
-#         super().save_formset(request, form, formset, change)
-
-# Optionally, register ContestProblem if you want to manage it separately
-# @admin.register(ContestProblem)
-# class ContestProblemAdmin(ModelAdmin):
-#     list_display = ('contest', 'problem')
-#     list_filter = ('contest',)
-
-# class ProblemForm(forms.ModelForm):
-#     pass
 
 @admin.register(User)
 class AccountAdmin(BaseUserAdmin,ModelAdmin):

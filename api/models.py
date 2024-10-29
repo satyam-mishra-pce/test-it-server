@@ -36,14 +36,6 @@ class User(AbstractUser):
     REQUIRED_FIELDS=[]
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
-    
-
-
-# class Files(models.Model):
-#     name = models.CharField(max_length=50)
-#     user = models.ForeignKey(to=User,on_delete=models.CASCADE)
-#     file = models.FileField(upload_to='files/')
-#     created = models.DateTimeField(auto_now_add=True)
 
 class Contest(models.Model):
     name = models.CharField(max_length=50)
