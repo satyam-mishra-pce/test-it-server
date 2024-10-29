@@ -17,9 +17,9 @@ class ContestProblemInline(TabularInline):
     fields = ['problem']  # Fields to display in the inline
     
 class TestCaseInline(TabularInline):
-    model = Problem
+    model = TestCase
     extra = 1  # Number of empty forms displayed to add new problems
-    fields = ['']  # Fields to display in the inline
+    fields = ['input_data','expected_output']  # Fields to display in the inline
 
 # Register Contest with ContestProblemInline
 @admin.register(Contest)
@@ -30,6 +30,7 @@ class ContestAdmin(ModelAdmin):
 
 @admin.register(Problem)
 class ProblemAdmin(ModelAdmin):
+    inlines = [TestCaseInline]
 #     form = ProblemAdminForm
     list_display = ['title']  # Customize as needed
     search_fields = ['title']
@@ -116,4 +117,4 @@ class AccountAdmin(BaseUserAdmin,ModelAdmin):
 class GroupAdmin(BaseGroupAdmin, ModelAdmin):
     pass
 
-# admin.site.register(ContestProblem)
+# admin.site.register(TestCase)
