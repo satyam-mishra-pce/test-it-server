@@ -13,6 +13,10 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from datetime import timedelta
 from pathlib import Path
 
+from config import unfold_config
+
+UNFOLD = unfold_config.UNFOLD
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -33,20 +37,21 @@ CORS_ALLOW_ALL_ORIGINS = True
 # Application definition
 
 INSTALLED_APPS = [
-    # 'uvicorn',
-    'channels',
+    # 'channels',
+    "unfold",  # before django.contrib.admin
+    "unfold.contrib.filters",  # optional, if special filters are needed
+    "unfold.contrib.forms",  # optional, if special form elements are needed
+    "unfold.contrib.inlines",  # optional, if special inlines are needed
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    # 'django.contrib.staticfiles',
+    'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_simplejwt',
     "corsheaders",
-    # 'accounts.apps.AccountsConfig',
-    'api.apps.ApiConfig',
-    # 'main.apps.MainConfig',
+    'api',
 ]
 
 MIDDLEWARE = [
@@ -78,8 +83,8 @@ TEMPLATES = [
     },
 ]
 
-# WSGI_APPLICATION = 'codeware.wsgi.application'
-ASGI_APPLICATION = 'config.asgi.application'
+WSGI_APPLICATION = 'config.wsgi.application'
+# ASGI_APPLICATION = 'config.asgi.application'
 
 
 # Database
@@ -130,6 +135,13 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'static'
+
+STATICFILES_DIRS = [
+    
+]
 
 MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = 'media/'

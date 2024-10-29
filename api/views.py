@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from api.permissions import AllowOptionsAuthentication
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
-from api.models import Files, User
+from api.models import User
 
 @api_view(['post'])
 @permission_classes([])

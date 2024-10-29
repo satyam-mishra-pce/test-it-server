@@ -13,8 +13,7 @@ django-rest-framework = "^0.1.0"
 django-cors-headers = "^4.5.0"
 django-channels = "^0.7.0"
 djangorestframework-simplejwt = "^5.3.1"
-
-[tool.poetry.group.dev.dependencies]
+django-unfold = "^0.40.0"
 
 [build-system]
 requires = ["poetry-core"]
