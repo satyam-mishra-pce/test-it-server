@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from api.permissions import AllowOptionsAuthentication
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
-from api.models import User
+from api.models import Contest, Problem, User
 
 @api_view(['post'])
 @permission_classes([])
@@ -144,3 +144,50 @@ test-case based programs"""
 #     return Response(ctx)
     
 
+@api_view(['GET'])
+def get_problems(request):
+    """
+    Get all problems (DSA questions)
+    """
+    try:
+        problems = Problem.objects.all()
+        problems_list = []
+        for problem in problems:
+            problems_list.append({
+                'id': problem.id,
+                'title': problem.title,
+                'description': problem.description,
+                'difficulty': problem.difficulty
+            })
+        return Response(problems_list, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response(f'Error: {str(e)}', status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET']) 
+def get_contests(request):
+    """
+    Get all contests with their associated problems
+    """
+    try:
+        contests = Contest.objects.prefetch_related('problems').all()
+        contests_list = []
+        for contest in contests:
+            problems = []
+            for problem in contest.problems.all():
+                problems.append({
+                    'id': problem.id,
+                    'title': problem.title,
+                    'description': problem.description,
+                    'difficulty': problem.difficulty
+                })
+            contests_list.append({
+                'id': contest.id,
+                'name': contest.name,
+                'description': contest.description,
+                'start_time': contest.start_time,
+                'end_time': contest.end_time,
+                'problems': problems
+            })
+        return Response(contests_list, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response(f'Error: {str(e)}', status=status.HTTP_400_BAD_REQUEST)
