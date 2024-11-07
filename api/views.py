@@ -14,12 +14,13 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
 from api.models import Contest, Problem, User
 from config.settings import BASE_DIR
+from django.db.models import Q
 
 @api_view(['post'])
 @permission_classes([])
 def get_token(request):
     data = request.data
-    user = authenticate(email=data['email'],password=data['password'])
+    user = authenticate(username=data['username'],password=data['password'])
     if user:
         refresh = RefreshToken.for_user(user)
 
@@ -27,7 +28,11 @@ def get_token(request):
             'id':user.id,
             'first_name':user.first_name,
             'last_name':user.last_name,
+            'username':user.username,
             'email':user.email,
+            'phone':user.phone,
+            'batch':user.batch,
+            'branch':user.get_branch_display(),
             'refresh': str(refresh),
             'access': str(refresh.access_token),
         })
@@ -177,13 +182,11 @@ def run(request):
 @api_view(['GET'])
 def get_problems(request):
     """
-    Get all problems (DSA questions)
+    Get a problem (DSA questions)
     """
     try:
-        problems = Problem.objects.all()
-        problems_list = []
-        for problem in problems:
-            problems_list.append({
+        problem = Problem.objects.get(id=request.GET.get("id"))
+        json = {
                 'id': problem.id,
                 'title': problem.title,
                 'description': problem.description,
@@ -192,8 +195,8 @@ def get_problems(request):
                 'constraints': problem.constraints,
                 'difficulty': problem.difficulty,
                 'points': problem.points
-            })
-        return Response(problems_list, status=status.HTTP_200_OK)
+            }
+        return Response(json, status=status.HTTP_200_OK)
     except Exception as e:
         return Response(f'Error: {str(e)}', status=status.HTTP_400_BAD_REQUEST)
 
@@ -203,7 +206,7 @@ def get_contests(request):
     Get all contests with their associated problems
     """
     try:
-        contests = Contest.objects.prefetch_related('problems').all()
+        contests = Contest.objects.prefetch_related('problems').filter(Q(branch="ALL") | Q(branch=request.user.branch))
         contests_list = []
         for contest in contests:
             problems = []

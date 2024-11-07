@@ -49,9 +49,9 @@ class User(AbstractUser):
     id = models.BigAutoField(primary_key=True)
     email = models.EmailField(blank=True,null=True,unique=True)
     phone = models.CharField(blank=True,null=True,unique=True,max_length=15)
-    branch = models.CharField(max_length=5,choices=_branches)
-    batch = models.PositiveSmallIntegerField()
-    objects = UserManager()
+    branch = models.CharField(max_length=5,choices=_branches,blank=True,null=True)
+    batch = models.PositiveSmallIntegerField(blank=True,null=True)
+    # objects = UserManager()
 
     # USERNAME_FIELD='email'
     REQUIRED_FIELDS=[]

@@ -10,7 +10,8 @@
                     "response": {
                         "status": 200,
                         "id": "1000",
-                        "name": "Satyam Mishra",
+                        "first_name": "Satyam",
+                        "last_name": "Mishra",
                         "username": "21EPCCS033",
                         "branch": "CSE",
                         "batch": 2025,
