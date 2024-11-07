@@ -39,25 +39,30 @@
             },
             "/api/contest": {
                 "get": {
-                    "response": {
-                        "id": "contest.id",
-                        "name": "contest.name",
-                        "description": "contest.description",
-                        "start_time": "contest.start_time",
-                        "end_time": "contest.end_time",
-                        "problems": [
-                            {
-                                "id": "problem.id",
-                                "title": "problem.title",
-                                "points": "problem.points",
-                                "difficulty": "problem.difficulty"
-                            }
-                        ]
-                    }
+                    "response": [
+                        {
+                            "id": "contest.id",
+                            "name": "contest.name",
+                            "description": "contest.description",
+                            "start_time": "contest.start_time",
+                            "end_time": "contest.end_time",
+                            "problems": [
+                                {
+                                    "id": "problem.id",
+                                    "title": "problem.title",
+                                    "points": "problem.points",
+                                    "difficulty": "problem.difficulty"
+                                }
+                            ]
+                        }
+                    ]
                 }
             },
             "/api/problem": {
                 "get": {
+                    "parameters": {
+                        "id": "problem.id"
+                    },
                     "response": {
                         "id": "problem.id",
                         "title": "problem.title",
