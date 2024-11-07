@@ -37,6 +37,39 @@
                     }
                 }
             },
+            "/api/contest": {
+                "get": {
+                    "response": {
+                        "id": "contest.id",
+                        "name": "contest.name",
+                        "description": "contest.description",
+                        "start_time": "contest.start_time",
+                        "end_time": "contest.end_time",
+                        "problems": [
+                            {
+                                "id": "problem.id",
+                                "title": "problem.title",
+                                "points": "problem.points",
+                                "difficulty": "problem.difficulty"
+                            }
+                        ]
+                    }
+                }
+            },
+            "/api/problem": {
+                "get": {
+                    "response": {
+                        "id": "problem.id",
+                        "title": "problem.title",
+                        "description": "problem.description",
+                        "input": "problem.input",
+                        "output": "problem.output",
+                        "constraints": "problem.constraints",
+                        "points": "problem.points",
+                        "difficulty": "problem.difficulty"
+                    }
+                }
+            },
             "/api/compile": {
                 "post": {
                     "body": {

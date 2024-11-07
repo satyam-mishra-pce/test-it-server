@@ -187,7 +187,11 @@ def get_problems(request):
                 'id': problem.id,
                 'title': problem.title,
                 'description': problem.description,
-                'difficulty': problem.difficulty
+                'input': problem.input,
+                'output': problem.output,
+                'constraints': problem.constraints,
+                'difficulty': problem.difficulty,
+                'points': problem.points
             })
         return Response(problems_list, status=status.HTTP_200_OK)
     except Exception as e:
@@ -207,7 +211,7 @@ def get_contests(request):
                 problems.append({
                     'id': problem.id,
                     'title': problem.title,
-                    'description': problem.description,
+                    'points': problem.points,
                     'difficulty': problem.difficulty
                 })
             contests_list.append({
