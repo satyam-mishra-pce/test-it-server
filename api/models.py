@@ -3,6 +3,24 @@ from django.contrib.auth.models import AbstractUser
 # Create your models here.
 from django.contrib.auth.base_user import BaseUserManager
 
+_branches = [
+    ("ALL","All"),
+    ("CSE","Computer Science & Engineering"),
+    ("IT","Information Technology"),
+    ("AI&DS","Artificial Intelligence & Data Science"),
+    ("CS-AI","Computer Science & Engineering with AI"),
+    ("EE","Electrical Engineering"),
+    ("ECE","Electronics & Communication Engineering"),
+    ("ME","Mechanical Engineering"),
+    ("CE","Civil Engineering"),
+]
+
+_difficulties = [
+    ('h',"Hard"),
+    ('m',"Medium"),
+    ('e',"Easy")
+]
+
 class UserManager(BaseUserManager):
     use_in_migrations=True
 
@@ -27,18 +45,22 @@ class UserManager(BaseUserManager):
     
 
 class User(AbstractUser):
-    username = None
+    # username = None
     id = models.BigAutoField(primary_key=True)
     email = models.EmailField(blank=True,null=True,unique=True)
+    phone = models.CharField(blank=True,null=True,unique=True,max_length=15)
+    branch = models.CharField(max_length=5,choices=_branches)
+    batch = models.PositiveSmallIntegerField()
     objects = UserManager()
 
-    USERNAME_FIELD='email'
+    # USERNAME_FIELD='email'
     REQUIRED_FIELDS=[]
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
 
 class Contest(models.Model):
     name = models.CharField(max_length=50)
+    branch = models.CharField(max_length=5,choices=_branches)
     description = models.TextField(null=True,blank=True)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
@@ -54,6 +76,8 @@ class Problem(models.Model):
     input = models.TextField()
     output = models.TextField()
     constraints = models.TextField()
+    difficulty = models.CharField(choices=_difficulties,max_length=1)
+    points = models.PositiveSmallIntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):

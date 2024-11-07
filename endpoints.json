@@ -1,0 +1,55 @@
+{
+    "endpoints": [
+        {
+            "/api/token": {
+                "post": {
+                    "body": {
+                        "username": "21EPCCS033",
+                        "password": "21EPCCS033"
+                    },
+                    "response": {
+                        "status": 200,
+                        "id": "1000",
+                        "name": "Satyam Mishra",
+                        "username": "21EPCCS033",
+                        "branch": "CSE",
+                        "batch": 2025,
+                        "email": "satyam@test.it",
+                        "phone": "09832783020",
+                        "access": "ahfbksndfonsodvljrnou",
+                        "refresh": "sad cjkdsnoucndsonviounsd"
+                    }
+                }
+            },
+            "/api/user": {
+                "put": {
+                    "body": {
+                        "id": "1000",
+                        "name": "Satyam Mishra",
+                        "username": "21EPCCS033",
+                        "branch": "CSE",
+                        "batch": 2025,
+                        "email": "satyam@test.it",
+                        "phone": "09832783020"
+                    },
+                    "response": {
+                        "status": 200
+                    }
+                }
+            },
+            "/api/compile": {
+                "post": {
+                    "body": {
+                        "code": "Uses's Code",
+                        "lang": "py"
+                    },
+                    "response": {
+                        "status": "pass/compile error/runtime error/wrong submission",
+                        "testcase-passed": "10/10",
+                        "error": "Memory Overflow at line 22"
+                    }
+                }
+            }
+        }
+    ]
+}
