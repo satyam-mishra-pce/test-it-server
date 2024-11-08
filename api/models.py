@@ -21,6 +21,10 @@ _difficulties = [
     ('e',"Easy")
 ]
 
+_status = [
+    ()
+]
+
 class UserManager(BaseUserManager):
     use_in_migrations=True
 
@@ -47,8 +51,8 @@ class UserManager(BaseUserManager):
 class User(AbstractUser):
     # username = None
     id = models.BigAutoField(primary_key=True)
-    email = models.EmailField(blank=True,null=True,unique=True)
-    phone = models.CharField(blank=True,null=True,unique=True,max_length=15)
+    email = models.EmailField(blank=True,null=True)
+    phone = models.CharField(blank=True,null=True,max_length=15)
     branch = models.CharField(max_length=5,choices=_branches,blank=True,null=True)
     batch = models.PositiveSmallIntegerField(blank=True,null=True)
     # objects = UserManager()
@@ -82,6 +86,10 @@ class Problem(models.Model):
     
     def __str__(self):
         return self.title
+    
+# class Submission(models.Model):
+#     user = models.ForeignKey(User, verbose_name="User", on_delete=models.CASCADE)
+#     problem = models.ForeignKey(Problem, verbose_name="User", on_delete=models.CASCADE)
     
 class ContestProblem(models.Model):
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE)

@@ -53,19 +53,26 @@ class AccountAdmin(BaseUserAdmin,ModelAdmin):
         "display_created",
     ]
     ordering =()
-    add_fieldsets = (
-        (_("Add User"), {"fields": ["email","password","password2"]}),
-    )
+    # add_fieldsets = (
+    #     (_("Add User"), {"fields": ["username","password","password2"]}),
+    # )
     fieldsets = (
         (
             _("Personal info"),
             {
-                "fields": (("first_name", "last_name"), "email"),
+                "fields": (("first_name", "last_name"), "email","phone"),
+                # "classes": ["tab"],
+            },
+        ),
+        (
+            _("Academic data (Student only)"),
+            {
+                "fields": (("branch", "batch")),
                 "classes": ["tab"],
             },
         ),
         (
-            _("Permissions"),
+            _("Permissions (Admin only)"),
             {
                 "fields": (
                     "is_active",
@@ -84,7 +91,7 @@ class AccountAdmin(BaseUserAdmin,ModelAdmin):
                 # "classes": ["tab"],
             },
         ),
-        (None, {"fields": ["password"]}),
+        (_("Password"), {"fields": ["password"]}),
     )
     filter_horizontal = (
         "groups",
