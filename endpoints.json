@@ -80,7 +80,8 @@
                 "post": {
                     "body": {
                         "code": "Uses's Code",
-                        "lang": "py"
+                        "lang": "py",
+                        "pid": "problem's id"
                     },
                     "response": {
                         "status": "pass/compile error/runtime error/wrong submission",

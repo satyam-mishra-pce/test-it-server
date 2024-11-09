@@ -22,7 +22,8 @@ _difficulties = [
 ]
 
 _status = [
-    ()
+    ('A','Accepted'),
+    ('R','Accepted'),
 ]
 
 class UserManager(BaseUserManager):
@@ -87,9 +88,13 @@ class Problem(models.Model):
     def __str__(self):
         return self.title
     
-# class Submission(models.Model):
-#     user = models.ForeignKey(User, verbose_name="User", on_delete=models.CASCADE)
-#     problem = models.ForeignKey(Problem, verbose_name="User", on_delete=models.CASCADE)
+class Submission(models.Model):
+    user = models.ForeignKey(User, verbose_name="User", on_delete=models.CASCADE)
+    problem = models.ForeignKey(Problem, verbose_name="Problem", on_delete=models.CASCADE)
+    status = models.CharField(choices=_status,max_length=3)
+    detail = models.TextField()
+    passed_testcases = models.PositiveSmallIntegerField()
+    total_testcases = models.PositiveSmallIntegerField()
     
 class ContestProblem(models.Model):
     contest = models.ForeignKey(Contest, on_delete=models.CASCADE)
@@ -100,6 +105,7 @@ class ContestProblem(models.Model):
         
 class TestCase(models.Model):
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE)
+    visible = models.BooleanField(default=False)
     input_data = models.TextField()
     expected_output = models.TextField()
 

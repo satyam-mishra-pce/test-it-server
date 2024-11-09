@@ -11,7 +11,7 @@ from rest_framework.permissions import IsAuthenticated
 from api.exceptions import CompilationError
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
-from api.models import Contest, Problem, User
+from api.models import Contest, Problem, User,TestCase
 from config.settings import BASE_DIR
 from django.db.models import Q
 
@@ -102,10 +102,13 @@ test-case based programs"""
 @api_view(['post'])
 # @permission_classes([IsAuthenticated])
 # @authentication_classes([JWTAuthentication])
-def run(request):
-    lang = request.POST.get('lang')
-    code = request.POST.get('code')
-    stdin = request.POST.get('stdin')
+def compile(request):
+    data = request.data
+    lang = data.get('lang')
+    code = data.get('code')
+    pid = data.get('pid')
+    # problem = Problem.objects.get(id=pid) 
+    testcases = TestCase.objects.filter(problem=pid) # TODO Cache this result
     _filename = f'test_{uuid4()}.{lang}'
     _fileloc = path.join(BASE_DIR,"media","cache",_filename)
     with open(_fileloc, 'w') as fp:
@@ -113,37 +116,56 @@ def run(request):
         fp.close()
     try :
         if lang == "py": 
-            _output  = subprocess.run(
-                ["python3",_fileloc],
-                input=stdin.encode('utf-8'),
-                timeout=3,
-                capture_output=True
-                )
+            outputs = []
+            for testcase in testcases:
+                _output  = subprocess.run(
+                    ["python3",_fileloc],
+                    input=testcase.input_data.encode('utf-8'),
+                    timeout=3,
+                    capture_output=True
+                    )
+                if _output.stdout.decode('utf-8') == testcase.expected_output:
+                    outputs.append(_output)
+                else:
+                    break
             remove(_fileloc)
         elif lang == "js": 
-            _output  = subprocess.run(
-                ["node",_fileloc],
-                input=stdin.encode('utf-8'),
-                timeout=3,
-                capture_output=True
-                )
-            remove(_fileloc)
+            
+            outputs = []
+            for testcase in testcases:
+                _output  = subprocess.run(
+                    ["node",_fileloc],
+                    input=testcase.input_data.encode('utf-8'),
+                    timeout=3,
+                    capture_output=True
+                    )
+                if _output.stdout.decode('utf-8') == testcase.expected_output:
+                    outputs.append(_output)
+                else:
+                    break
+            # remove(_fileloc)
         elif lang == "cpp": 
             _output  = subprocess.run(
                 ["g++",_fileloc],
                 timeout=5,
                 capture_output=True
                 )
-            remove(_fileloc)
+            # remove(_fileloc)
             if _output.returncode != 0:
                 ctx = _output.stderr.decode('utf-8')
                 return Response(ctx,status=status.HTTP_400_BAD_REQUEST)
-            _output = subprocess.run(
-                [f'./a.out'],
-                input=stdin.encode('utf-8'),
-                timeout=1,
-                capture_output=True
-                )
+            outputs = []
+            for testcase in testcases:
+                _output = subprocess.run(
+                    [f'./a.out'],
+                    input=testcase.input_data.encode('utf-8'),
+                    timeout=1,
+                    capture_output=True
+                    )
+                if _output.stdout.decode('utf-8') == testcase.expected_output:
+                        outputs.append(_output)
+                else:
+                    break
             remove('./a.out')
         elif lang == "c": 
             _output  = subprocess.run(
@@ -155,12 +177,18 @@ def run(request):
             if _output.returncode != 0:
                 ctx = _output.stderr.decode('utf-8')
                 return Response(ctx,status=status.HTTP_400_BAD_REQUEST)
-            _output = subprocess.run(
-                [f'./a.out'],
-                input=stdin.encode('utf-8'),
-                timeout=1,
-                capture_output=True
-                )
+            outputs = []
+            for testcase in testcases:
+                _output = subprocess.run(
+                    [f'./a.out'],
+                    input=testcase.input_data.encode('utf-8'),
+                    timeout=1,
+                    capture_output=True
+                    )
+                if _output.stdout.decode('utf-8') == testcase.expected_output:
+                        outputs.append(_output)
+                else:
+                    break
             remove('./a.out')
         else:
             return Response('Language not supported.',status=status.HTTP_403_FORBIDDEN)
