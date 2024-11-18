@@ -362,4 +362,76 @@ def submission(request):
     
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['POST'])
+def run_code(request):
+    """
+    Run code based on the provided language and input.
+    """
+    data = request.data
+    lang = data.get('lang')
+    code = data.get('code')
+    input_data = data.get('input')  # Get input from the request
 
+    _filename = f'test_{uuid4()}.{lang}'
+    _fileloc = path.join(BASE_DIR, "media", "cache", _filename)
+
+    with open(_fileloc, 'w') as fp:
+        fp.write(code)
+
+    try:
+        if lang == "py":
+            _output = subprocess.run(
+                ["python3", _fileloc],
+                input=input_data.encode('utf-8'),
+                timeout=3,
+                capture_output=True
+            )
+        elif lang == "js":
+            _output = subprocess.run(
+                ["node", _fileloc],
+                input=input_data.encode('utf-8'),
+                timeout=3,
+                capture_output=True
+            )
+        elif lang == "cpp":
+            _output = subprocess.run(
+                ["g++", _fileloc],
+                timeout=5,
+                capture_output=True
+            )
+            if _output.returncode != 0:
+                ctx = _output.stderr.decode('utf-8')
+                return Response(ctx, status=status.HTTP_400_BAD_REQUEST)
+            _output = subprocess.run(
+                ["./a.out"],
+                input=input_data.encode('utf-8'),
+                timeout=1,
+                capture_output=True
+            )
+        elif lang == "c":
+            _output = subprocess.run(
+                ["gcc", _fileloc],
+                timeout=5,
+                capture_output=True
+            )
+            if _output.returncode != 0:
+                ctx = _output.stderr.decode('utf-8')
+                return Response(ctx, status=status.HTTP_400_BAD_REQUEST)
+            _output = subprocess.run(
+                ["./a.out"],
+                input=input_data.encode('utf-8'),
+                timeout=1,
+                capture_output=True
+            )
+        else:
+            return Response('Language not supported.', status=status.HTTP_403_FORBIDDEN)
+
+        output = _output.stdout.decode('utf-8')
+        if _output.returncode != 0:
+            output = _output.stderr.decode('utf-8')
+            return Response(output, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({"output": output}, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response(f'Error: {str(e)}', status=status.HTTP_400_BAD_REQUEST)

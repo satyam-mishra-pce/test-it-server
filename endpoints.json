@@ -112,6 +112,19 @@
                         "language": "py"
                     }
                 }
+            },
+            "/api/run_codee": {
+                "post": {
+                    "body": {
+                        "lang": "py",
+                        "code": "print('Hello, World!')",
+                        "input": "input data for the code"
+                    },
+                    "response": {
+                        "output": "Hello, World!",
+                        "status": 200
+                    }
+                }
             }
         }
     ]
