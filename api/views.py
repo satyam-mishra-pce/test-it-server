@@ -274,7 +274,10 @@ def run_test_cases(request):
     if serializer.is_valid():
         lang = serializer.validated_data['lang']
         code = serializer.validated_data['code']
-        testcases = serializer.validated_data['testcases']
+        problem_id = request.data.get('pid')  # Assuming 'pid' is passed in the request
+        
+        # Fetch all test cases for the given problem (both visible and non-visible)
+        testcases = TestCase.objects.filter(problem_id=problem_id).values('input_data', 'expected_output', 'visible')
         
         _filename = f'test_{uuid4()}.{lang}'
         _fileloc = path.join(BASE_DIR, "media", "cache", _filename)
@@ -289,8 +292,9 @@ def run_test_cases(request):
         
         try:
             for testcase in testcases:
-                input_data = testcase.get('input')
-                expected_output = testcase.get('expected_output')
+                input_data = testcase['input_data']
+                expected_output = testcase['expected_output']
+                is_visible = testcase['visible']
                 
                 if lang == "py":
                     _output = subprocess.run(
@@ -328,8 +332,11 @@ def run_test_cases(request):
                     outputs.append({"input": input_data, "output": output, "status": "Passed"})
                     passed_count += 1
                 else:
-                    outputs.append({"input": input_data, "output": output, "status": "Failed", "expected": expected_output})
-                    failed_cases.append({"input": input_data, "expected": expected_output, "actual": output})
+                    if is_visible:
+                        outputs.append({"input": input_data, "output": output, "status": "Failed", "expected": expected_output})
+                        failed_cases.append({"input": input_data, "expected": expected_output, "actual": output})
+                    else:
+                        outputs.append({"input": input_data, "status": "Failed (hidden)"})  # Indicate failure for hidden test cases
 
         finally:
             remove(_fileloc)  # Clean up the file after execution
@@ -337,11 +344,11 @@ def run_test_cases(request):
         time_taken = time.time() - start_time  # Calculate time taken
 
         return Response({
-            "problem_id": request.data.get('pid'),  # Assuming 'pid' is passed in the request
+            "problem_id": problem_id,
             "testcases_passed": passed_count,
             "failed_cases": failed_cases,
             "time_taken": time_taken,
-            "language":lang,
+            "language": lang,
         }, status=status.HTTP_200_OK)
     
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
