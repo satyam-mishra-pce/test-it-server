@@ -19,7 +19,7 @@ class ContestProblemInline(TabularInline):
 class TestCaseInline(TabularInline):
     model = TestCase
     extra = 1  # Number of empty forms displayed to add new problems
-    fields = ['input_data','expected_output']  # Fields to display in the inline
+    fields = ['visible','input_data','expected_output']  # Fields to display in the inline
 
 # Register Contest with ContestProblemInline
 @admin.register(Contest)
@@ -34,11 +34,11 @@ class ProblemAdmin(ModelAdmin):
 #     form = ProblemAdminForm
     list_display = ['title']  # Customize as needed
     search_fields = ['title']
-    formfield_overrides = {
-        models.TextField: {
-            "widget": WysiwygWidget,
-        }
-    }
+    # formfield_overrides = {
+    #     models.TextField: {
+    #         "widget": WysiwygWidget,
+    #     }
+    # }
 
 @admin.register(User)
 class AccountAdmin(BaseUserAdmin,ModelAdmin):
