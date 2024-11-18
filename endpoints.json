@@ -89,6 +89,29 @@
                         "error": "Memory Overflow at line 22"
                     }
                 }
+            },
+            "/api/run-test": {
+                "post": {
+                    "body": {
+                        "lang": "py",
+                        "code": "print('Hello, World!')",
+                        "pid": "problem's id",
+                        "testcases": [
+                            {
+                                "input_data": "input for test case 1",
+                                "expected_output": "expected output for test case 1",
+                                "visible": true
+                            }
+                        ]
+                    },
+                    "response": {
+                        "problem_id": "problem's id",
+                        "testcases_passed": 1,
+                        "failed_cases": [],
+                        "time_taken": "time in seconds",
+                        "language": "py"
+                    }
+                }
             }
         }
     ]
