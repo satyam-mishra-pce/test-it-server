@@ -11,7 +11,7 @@ from rest_framework.permissions import IsAuthenticated
 from api.exceptions import CompilationError
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import RefreshToken
-from api.models import Contest, Problem, User,TestCase
+from api.models import Contest, Problem, User,TestCase, Submission
 from config.settings import BASE_DIR
 from django.db.models import Q
 from rest_framework import serializers
@@ -274,9 +274,8 @@ def run_test_cases(request):
     if serializer.is_valid():
         lang = serializer.validated_data['lang']
         code = serializer.validated_data['code']
-        problem_id = request.data.get('pid')  # Assuming 'pid' is passed in the request
+        problem_id = request.data.get('pid') 
         
-        # Fetch all test cases for the given problem (both visible and non-visible)
         testcases = TestCase.objects.filter(problem_id=problem_id).values('input_data', 'expected_output', 'visible')
         
         _filename = f'test_{uuid4()}.{lang}'
@@ -288,7 +287,7 @@ def run_test_cases(request):
         outputs = []
         passed_count = 0
         failed_cases = []
-        start_time = time.time()  # Start time for execution
+        start_time = time.time()
         
         try:
             for testcase in testcases:
@@ -336,12 +335,21 @@ def run_test_cases(request):
                         outputs.append({"input": input_data, "output": output, "status": "Failed", "expected": expected_output})
                         failed_cases.append({"input": input_data, "expected": expected_output, "actual": output})
                     else:
-                        outputs.append({"input": input_data, "status": "Failed (hidden)"})  # Indicate failure for hidden test cases
+                        outputs.append({"input": input_data, "status": "Failed (hidden)"})  
 
         finally:
-            remove(_fileloc)  # Clean up the file after execution
+            remove(_fileloc)
 
-        time_taken = time.time() - start_time  # Calculate time taken
+        time_taken = time.time() - start_time 
+
+        submission = Submission.objects.create(
+            user=request.user,
+            problem_id=problem_id,
+            status='A' if passed_count == len(testcases) else 'R',
+            detail=str(outputs),
+            passed_testcases=passed_count,
+            total_testcases=len(testcases)
+        )
 
         return Response({
             "problem_id": problem_id,
