@@ -342,15 +342,6 @@ def run_test_cases(request):
 
         time_taken = time.time() - start_time 
 
-        submission = Submission.objects.create(
-            user=request.user,
-            problem_id=problem_id,
-            status='A' if passed_count == len(testcases) else 'R',
-            detail=str(outputs),
-            passed_testcases=passed_count,
-            total_testcases=len(testcases)
-        )
-
         return Response({
             "problem_id": problem_id,
             "testcases_passed": passed_count,
@@ -360,3 +351,24 @@ def run_test_cases(request):
         }, status=status.HTTP_200_OK)
     
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# New endpoint for submission
+@api_view(['POST'])
+def submit_solution(request):
+    data = request.data
+    problem_id = data.get('pid')
+    user = request.user
+    outputs = data.get('outputs')  # Assuming outputs are passed in the request
+    passed_count = data.get('passed_count')
+    total_testcases = data.get('total_testcases')
+
+    submission = Submission.objects.create(
+        user=user,
+        problem_id=problem_id,
+        status='A' if passed_count == total_testcases else 'R',
+        detail=str(outputs),
+        passed_testcases=passed_count,
+        total_testcases=total_testcases
+    )
+
+    return Response({"message": "Submission successful", "submission_id": submission.id}, status=status.HTTP_201_CREATED)
