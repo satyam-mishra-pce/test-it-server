@@ -16,6 +16,7 @@ from config.settings import BASE_DIR
 from django.db.models import Q
 from rest_framework import serializers
 import time
+from rest_framework import parsers
 
 @api_view(['post'])
 @permission_classes([])
@@ -269,12 +270,12 @@ class RunTestCasesSerializer(serializers.Serializer):
     )
 
 @api_view(['POST'])
-def run_test_cases(request):
+def submission(request):
     serializer = RunTestCasesSerializer(data=request.data)
     if serializer.is_valid():
         lang = serializer.validated_data['lang']
         code = serializer.validated_data['code']
-        problem_id = request.data.get('pid') 
+        problem_id = request.data.get('pid')  
         
         testcases = TestCase.objects.filter(problem_id=problem_id).values('input_data', 'expected_output', 'visible')
         
@@ -335,12 +336,21 @@ def run_test_cases(request):
                         outputs.append({"input": input_data, "output": output, "status": "Failed", "expected": expected_output})
                         failed_cases.append({"input": input_data, "expected": expected_output, "actual": output})
                     else:
-                        outputs.append({"input": input_data, "status": "Failed (hidden)"})  
+                        outputs.append({"input": input_data, "status": "Failed (hidden)"})
 
         finally:
-            remove(_fileloc)
+            remove(_fileloc)  
 
         time_taken = time.time() - start_time 
+
+        submission = Submission.objects.create(
+            user=request.user,  
+            problem_id=problem_id,
+            status='A' if passed_count == len(testcases) else 'R',  
+            detail=str(outputs),
+            passed_testcases=passed_count,
+            total_testcases=len(testcases)
+        )
 
         return Response({
             "problem_id": problem_id,
@@ -352,23 +362,4 @@ def run_test_cases(request):
     
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# New endpoint for submission
-@api_view(['POST'])
-def submit_solution(request):
-    data = request.data
-    problem_id = data.get('pid')
-    user = request.user
-    outputs = data.get('outputs')  # Assuming outputs are passed in the request
-    passed_count = data.get('passed_count')
-    total_testcases = data.get('total_testcases')
 
-    submission = Submission.objects.create(
-        user=user,
-        problem_id=problem_id,
-        status='A' if passed_count == total_testcases else 'R',
-        detail=str(outputs),
-        passed_testcases=passed_count,
-        total_testcases=total_testcases
-    )
-
-    return Response({"message": "Submission successful", "submission_id": submission.id}, status=status.HTTP_201_CREATED)

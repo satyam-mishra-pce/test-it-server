@@ -90,7 +90,7 @@
                     }
                 }
             },
-            "/api/run-test": {
+            "/api/submission": {
                 "post": {
                     "body": {
                         "lang": "py",
@@ -110,20 +110,6 @@
                         "failed_cases": [],
                         "time_taken": "time in seconds",
                         "language": "py"
-                    }
-                }
-            },
-            "/api/submit": {
-                "post": {
-                    "body": {
-                        "pid": "problem's id",
-                        "code": "Uses's Code",
-                        "lang": "py"
-                    },
-                    "response": {
-                        "status": "submitted/failed",
-                        "submission_id": "submission's id",
-                        "message": "Submission successful or error message"
                     }
                 }
             }
