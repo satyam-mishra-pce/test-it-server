@@ -258,7 +258,7 @@ def get_contests(request):
     except Exception as e:
         return Response(f'Error: {str(e)}', status=status.HTTP_400_BAD_REQUEST)
 
-# New serializer for running test cases
+
 class RunTestCasesSerializer(serializers.Serializer):
     lang = serializers.CharField()
     code = serializers.CharField()
@@ -270,13 +270,6 @@ class RunTestCasesSerializer(serializers.Serializer):
 
 @api_view(['POST'])
 def run_test_cases(request):
-    """
-    Run test cases against the compiled code.
-    Args:
-        lang: str - programming language of the code
-        code: str - the code to be executed
-        testcases: list - list of test cases with input and expected output
-    """
     serializer = RunTestCasesSerializer(data=request.data)
     if serializer.is_valid():
         lang = serializer.validated_data['lang']
