@@ -14,6 +14,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from api.models import Contest, Problem, User,TestCase
 from config.settings import BASE_DIR
 from django.db.models import Q
+from rest_framework import serializers
+import time
 
 @api_view(['post'])
 @permission_classes([])
@@ -255,3 +257,98 @@ def get_contests(request):
         return Response(contests_list, status=status.HTTP_200_OK)
     except Exception as e:
         return Response(f'Error: {str(e)}', status=status.HTTP_400_BAD_REQUEST)
+
+# New serializer for running test cases
+class RunTestCasesSerializer(serializers.Serializer):
+    lang = serializers.CharField()
+    code = serializers.CharField()
+    testcases = serializers.ListField(
+        child=serializers.DictField(
+            child=serializers.CharField()
+        )
+    )
+
+@api_view(['POST'])
+def run_test_cases(request):
+    """
+    Run test cases against the compiled code.
+    Args:
+        lang: str - programming language of the code
+        code: str - the code to be executed
+        testcases: list - list of test cases with input and expected output
+    """
+    serializer = RunTestCasesSerializer(data=request.data)
+    if serializer.is_valid():
+        lang = serializer.validated_data['lang']
+        code = serializer.validated_data['code']
+        testcases = serializer.validated_data['testcases']
+        
+        _filename = f'test_{uuid4()}.{lang}'
+        _fileloc = path.join(BASE_DIR, "media", "cache", _filename)
+        
+        with open(_fileloc, 'w') as fp:
+            fp.write(code)
+        
+        outputs = []
+        passed_count = 0
+        failed_cases = []
+        start_time = time.time()  # Start time for execution
+        
+        try:
+            for testcase in testcases:
+                input_data = testcase.get('input')
+                expected_output = testcase.get('expected_output')
+                
+                if lang == "py":
+                    _output = subprocess.run(
+                        ["python3", _fileloc],
+                        input=input_data.encode('utf-8'),
+                        timeout=3,
+                        capture_output=True
+                    )
+                elif lang == "js":
+                    _output = subprocess.run(
+                        ["node", _fileloc],
+                        input=input_data.encode('utf-8'),
+                        timeout=3,
+                        capture_output=True
+                    )
+                elif lang == "cpp":
+                    _output = subprocess.run(
+                        [f'./a.out'],
+                        input=input_data.encode('utf-8'),
+                        timeout=1,
+                        capture_output=True
+                    )
+                elif lang == "c":
+                    _output = subprocess.run(
+                        [f'./a.out'],
+                        input=input_data.encode('utf-8'),
+                        timeout=1,
+                        capture_output=True
+                    )
+                else:
+                    return Response('Language not supported.', status=status.HTTP_403_FORBIDDEN)
+
+                output = _output.stdout.decode('utf-8')
+                if output == expected_output:
+                    outputs.append({"input": input_data, "output": output, "status": "Passed"})
+                    passed_count += 1
+                else:
+                    outputs.append({"input": input_data, "output": output, "status": "Failed", "expected": expected_output})
+                    failed_cases.append({"input": input_data, "expected": expected_output, "actual": output})
+
+        finally:
+            remove(_fileloc)  # Clean up the file after execution
+
+        time_taken = time.time() - start_time  # Calculate time taken
+
+        return Response({
+            "problem_id": request.data.get('pid'),  # Assuming 'pid' is passed in the request
+            "testcases_passed": passed_count,
+            "failed_cases": failed_cases,
+            "time_taken": time_taken,
+            "language":lang,
+        }, status=status.HTTP_200_OK)
+    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

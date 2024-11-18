@@ -9,4 +9,5 @@ urlpatterns = [
     path('contest/', views.get_contests, name='get_contests'),
     path('problem/', views.get_problems, name='get_problems'),
     path('compile/', views.compile, name='compile'),
+    path('run-test/',views.run_test_cases,name='run-test-cases'),
 ]
