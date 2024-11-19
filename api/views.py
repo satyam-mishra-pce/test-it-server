@@ -325,21 +325,23 @@ def submission(request):
                     return Response('Language not supported.', status=status.HTTP_403_FORBIDDEN)
 
                 output = _output.stdout.decode('utf-8').rstrip()
-                if output== expected_output.rstrip():
-
+                if output == expected_output.rstrip():
                     outputs.append({"input": input_data, "output": output, "status": "Passed"})
                     passed_count += 1
                 else:
                     if is_visible:
-                        outputs.append({"input": input_data, "output": output, "status": "Failed", "expected": expected_output})
-                        failed_cases.append({"input": input_data, "expected": expected_output, "actual": output})
-                    else:
-                        outputs.append({"input": input_data, "status": "Failed (hidden)"})
+                        outputs.append({
+                            "input": input_data,
+                            "output": output,
+                            "status": "Failed",
+                            "expected": expected_output
+                        })
+                        
 
         finally:
-            remove(_fileloc)  
-
-        time_taken = time.time() - start_time 
+            remove(_fileloc)
+        
+        time_taken = time.time() - start_time
 
         submission = Submission.objects.create(
             user=request.user,  
@@ -352,8 +354,9 @@ def submission(request):
 
         return Response({
             "problem_id": problem_id,
+            "total_testcases": len(testcases),
             "testcases_passed": passed_count,
-            "failed_cases": failed_cases,
+            "failed_cases": failed_cases,  # Only visible failed test cases
             "time_taken": time_taken,
             "language": lang,
         }, status=status.HTTP_200_OK)
