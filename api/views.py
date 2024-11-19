@@ -325,7 +325,8 @@ def submission(request):
                     return Response('Language not supported.', status=status.HTTP_403_FORBIDDEN)
 
                 output = _output.stdout.decode('utf-8')
-                if output == expected_output:
+                if _output.stdout.decode('utf-8').rstrip('\n') == testcase.expected_output.rstrip('\n'):
+
                     outputs.append({"input": input_data, "output": output, "status": "Passed"})
                     passed_count += 1
                 else:
