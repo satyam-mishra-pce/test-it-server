@@ -263,11 +263,7 @@ def get_contests(request):
 class RunTestCasesSerializer(serializers.Serializer):
     lang = serializers.CharField()
     code = serializers.CharField()
-    testcases = serializers.ListField(
-        child=serializers.DictField(
-            child=serializers.CharField()
-        )
-    )
+
 
 @api_view(['POST'])
 def submission(request):
@@ -275,8 +271,9 @@ def submission(request):
     if serializer.is_valid():
         lang = serializer.validated_data['lang']
         code = serializer.validated_data['code']
-        problem_id = request.data.get('pid')  
+        problem_id = request.data.get('pid')  # Ensure 'pid' is included in the request
         
+        # Fetch test cases from the database based on the problem ID
         testcases = TestCase.objects.filter(problem_id=problem_id).values('input_data', 'expected_output', 'visible')
         
         _filename = f'test_{uuid4()}.{lang}'
