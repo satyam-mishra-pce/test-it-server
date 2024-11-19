@@ -99,6 +99,7 @@
                     },
                     "response": {
                         "problem_id": "problem's id",
+                        "total_testcases":10,
                         "testcases_passed": 1,
                         "failed_cases": [],
                         "time_taken": "time in seconds",
