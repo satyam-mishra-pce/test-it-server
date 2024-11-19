@@ -330,13 +330,17 @@ def submission(request):
                     passed_count += 1
                 else:
                     if is_visible:
-                        outputs.append({
+                        # Add visible failed case details to both outputs and failed_cases
+                        failed_case = {
                             "input": input_data,
-                            "output": output,
-                            "status": "Failed",
-                            "expected": expected_output
+                            "expected": expected_output,
+                            "actual": output
+                        }
+                        outputs.append({
+                            **failed_case,
+                            "status": "Failed"
                         })
-                        
+                        failed_cases.append(failed_case)
 
         finally:
             remove(_fileloc)
@@ -356,12 +360,13 @@ def submission(request):
             "problem_id": problem_id,
             "total_testcases": len(testcases),
             "testcases_passed": passed_count,
-            "failed_cases": failed_cases,  # Only visible failed test cases
+            "failed_cases": failed_cases,  # Visible failed test cases
             "time_taken": time_taken,
             "language": lang,
         }, status=status.HTTP_200_OK)
     
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['POST'])
 def run_code(request):
