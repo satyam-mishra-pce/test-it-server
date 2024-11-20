@@ -15,6 +15,7 @@ migrations/
 # Distribution / packaging
 .Python
 build/
+media/cache
 develop-eggs/
 dist/
 downloads/
